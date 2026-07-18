@@ -113,7 +113,7 @@
     z-index:100;
     display:flex;
     align-items:center;
-    justify-content:between;
+    justify-content:space-between;
     padding:20px clamp(16px, 4vw, 64px);
     background:rgba(3,5,9,0.75);
     backdrop-filter:blur(20px);
@@ -179,7 +179,7 @@
     transform-origin: left center;
   }
   
-  /* ---------- hero ---------- */
+  /* ---------- HERO SECTION ---------- */
   .hero{
     position:relative;
     z-index:1;
@@ -189,28 +189,40 @@
     align-items:center;
     justify-content:center;
     text-align:center;
-    padding: clamp(100px, 15vh, 160px) clamp(16px, 4vw, 24px) clamp(60px, 10vh, 80px);
+    padding: clamp(120px, 18vh, 180px) clamp(16px, 6vw, 40px) clamp(60px, 10vh, 100px);
     width: 100%;
   }
 
   .hero-card{
     width: 100%;
-    max-width: min(840px, 100%);
-    padding: clamp(24px, 5vw, 56px);
+    max-width: 780px;
+    background: rgba(9, 18, 36, 0.45) !important;
+    border: 1px solid rgba(34, 232, 255, 0.25) !important;
+    backdrop-filter: blur(18px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(34, 232, 255, 0.05);
+    padding: clamp(32px, 6vw, 64px) clamp(24px, 5vw, 56px);
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap: clamp(16px, 3vw, 24px);
+    gap: 0;
     opacity:0;
     transform:translateY(26px);
     animation:riseIn 1s cubic-bezier(.16,.9,.35,1) forwards;
   }
 
+  .hero .eyebrow {
+    margin-bottom: clamp(20px, 3.5vw, 28px);
+  }
+
   .hero h1{
-    font-size: clamp(1.8rem, 4.5vw + 0.5rem, 3.85rem);
+    font-size: clamp(1.85rem, 3.8vw + 0.4rem, 3.25rem);
+    line-height: 1.25;
     color:var(--text);
-    max-width: 100%;
+    max-width: 90%;
     word-wrap: break-word;
+    margin-bottom: clamp(24px, 4vw, 32px);
   }
   .hero h1 em{
     font-style:normal;
@@ -221,17 +233,17 @@
   }
 
   .hero p.sub{
-    font-size: clamp(0.95rem, 2vw, 1.18rem);
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    line-height: 1.75;
     color:var(--text-dim);
-    max-width: 640px;
-    line-height: 1.6;
+    max-width: 580px;
     font-weight: 400;
+    margin-bottom: clamp(32px, 5vw, 44px);
   }
 
   .cta-row{
     display:flex;
     gap: 16px;
-    margin-top: 8px;
     flex-wrap: wrap;
     justify-content: center;
     width: 100%;
@@ -291,6 +303,11 @@
     color:var(--text-faint);
     text-transform:uppercase;
   }
+
+  /* ---------- ANIMATION KEYFRAMES RUNTIME ---------- */
+  @keyframes riseIn{ to{ opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn{ to{ opacity:1; } }
+  @keyframes scrollPulse{ 0%,100%{ opacity:.3; } 50%{ opacity:1; } }
 
   /* ---------- sections shared ---------- */
   section{
@@ -417,6 +434,15 @@
     font-size:0.92rem;
     color:var(--text-dim);
     line-height:1.65;
+  }
+  .sequence-note{
+    text-align:center;
+    margin-top:40px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.75rem;
+    letter-spacing:0.18em;
+    color:var(--text-faint);
+    text-transform:uppercase;
   }
 
   /* ---------- team ---------- */
@@ -718,85 +744,39 @@
     max-width: 600px;
   }
 
-  /* =====================================================================
-     COMPREHENSIVE RESPONSIVE DESIGN BREAKPOINTS (Modern Fluid Engineering)
-     ===================================================================== */
-  
-  /* 4K & Ultra-Wide Enhancements (>= 1600px) */
+  /* ---------- responsive layout adaptations ---------- */
   @media (min-width: 1600px) {
-    .section-inner {
-      max-width: 1400px;
-    }
-    .pillars {
-      gap: 32px;
-    }
-    .team-grid {
-      gap: 40px;
-    }
+    .section-inner { max-width: 1400px; }
+    .pillars { gap: 32px; }
+    .team-grid { gap: 40px; }
   }
 
-  /* Desktop Standard Layouts adjustments (<= 1200px) */
   @media (max-width: 1200px) {
-    .about-grid {
-      gap: 40px;
-    }
+    .about-grid { gap: 40px; }
   }
 
-  /* Laptop & Large Tablets (<= 1024px) */
   @media (max-width: 1024px) {
-    .pillars {
-      gap: 20px;
-    }
-    .team-grid {
-      gap: 20px;
-    }
+    .pillars { gap: 20px; }
+    .team-grid { gap: 20px; }
   }
 
-  /* Medium Tablets Landscape & Portrait Transition (<= 992px) */
   @media (max-width: 992px) {
-    .about-grid {
-      grid-template-columns: 1fr;
-      gap: 48px;
-    }
-    .stat-label {
-      max-width: 100%;
-    }
-    .pillars {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    .team-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    .team-card {
-      max-height: 310px;
-    }
-    .team-card:hover, .team-card.touch-active {
-      max-height: 680px;
-    }
-    .contact-wrap {
-      grid-template-columns: 1fr;
-      gap: 48px;
-    }
-    .contact-info p {
-      max-width: 100%;
-    }
+    .about-grid { grid-template-columns: 1fr; gap: 48px; }
+    .stat-label { max-width: 100%; }
+    .pillars { grid-template-columns: repeat(2, 1fr); }
+    .team-grid { grid-template-columns: repeat(2, 1fr); }
+    .team-card { max-height: 310px; }
+    .team-card:hover, .team-card.touch-active { max-height: 680px; }
+    .contact-wrap { grid-template-columns: 1fr; gap: 48px; }
+    .contact-info p { max-width: 100%; }
   }
 
-  /* Small Tablets & Mobile Menu Adaptation (<= 768px) */
   @media (max-width: 768px) {
-    nav {
-      padding: 16px 20px;
-    }
-    
-    .nav-toggle {
-      display: flex;
-    }
-    
+    nav { padding: 16px 20px; }
+    .nav-toggle { display: flex; }
     .nav-links {
       position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
+      top: 100%; left: 0; right: 0;
       background: rgba(4, 8, 17, 0.96);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
@@ -814,98 +794,37 @@
       pointer-events: none;
       z-index: 99;
     }
-
-    .nav-links.open {
-      max-height: 40vh;
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-    
-    .nav-toggle.open span:nth-child(1) {
-      transform: rotate(45deg) translate(5px, 5px);
-    }
-    .nav-toggle.open span:nth-child(2) {
-      opacity: 0;
-    }
-    .nav-toggle.open span:nth-child(3) {
-      transform: rotate(-45deg) translate(6px, -7px);
-    }
-    
-    .nav-links a {
-      font-size: 1.05rem;
-      padding: 8px 0;
-      display: block;
-    }
-    .nav-links a::after {
-      display: none;
-    }
+    .nav-links.open { max-height: 40vh; opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .nav-toggle.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.open span:nth-child(3) { transform: rotate(-45deg) translate(6px, -7px); }
+    .nav-links a { font-size: 1.05rem; padding: 8px 0; display: block; }
+    .nav-links a::after { display: none; }
   }
 
-  /* Large Phones / Vertical Tablets (<= 640px) */
   @media (max-width: 640px) {
-    .pillars {
-      grid-template-columns: 1fr;
-    }
-    .team-grid {
-      grid-template-columns: 1fr;
-      max-width: 420px;
-      margin: 0 auto;
-    }
-    .team-card {
-      max-height: none !important;
-      transform: none !important;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
-    }
-    .expansion-drawer-content {
-      opacity: 1 !important;
-      transform: none !important;
-      margin-top: 24px !important;
-    }
-    .profile-photo-container {
-      transform: none !important;
-    }
-    .cta-row .btn {
-      width: 100%;
-    }
+    .hero h1 { max-width: 100%; }
+    .pillars { grid-template-columns: 1fr; }
+    .team-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+    .team-card { max-height: none !important; transform: none !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important; }
+    .expansion-drawer-content { opacity: 1 !important; transform: none !important; margin-top: 24px !important; }
+    .profile-photo-container { transform: none !important; }
+    .cta-row .btn { width: 100%; }
   }
 
-  /* Standard Smartphones (<= 480px) */
   @media (max-width: 480px) {
-    section {
-      padding: 48px 16px;
-    }
-    .hero {
-      padding-top: 120px;
-    }
-    .hero-card {
-      padding: 24px 16px;
-    }
-    .about-panel {
-      padding: 24px 16px;
-    }
-    .stat-row {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 6px;
-    }
-    .stat-label {
-      text-align: left;
-    }
-    .contact-form {
-      padding: 24px 16px;
-    }
+    section { padding: 48px 16px; }
+    .hero { padding-top: 120px; }
+    .hero-card { padding: 32px 16px; }
+    .about-panel { padding: 24px 16px; }
+    .stat-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .stat-label { text-align: left; }
+    .contact-form { padding: 24px 16px; }
   }
 
-  /* Compact Smartphones down to 320px (<= 375px) */
   @media (max-width: 375px) {
-    .tags {
-      gap: 6px;
-    }
-    .tag {
-      padding: 6px 10px;
-      font-size: 0.65rem;
-    }
+    .tags { gap: 6px; }
+    .tag { padding: 6px 10px; font-size: 0.65rem; }
   }
 </style>
 </head>
@@ -932,7 +851,7 @@
 <main>
 
   <section class="hero" id="home">
-    <div class="hero-card glass">
+    <div class="hero-card">
       <div class="eyebrow">Computational Biology Research Group</div>
       <h1>Integrating Artificial Intelligence and <em>Biotechnology Systems.</em></h1>
       <p class="sub">Advancing translational research at the intersection of bioinformatics, computational chemistry, and artificial intelligence to drive healthcare innovation.</p>
@@ -1015,7 +934,7 @@
       </div>
 
       <div class="team-grid" id="teamDynamicGrid">
-        <!-- Injected programmatically by the core script block below -->
+        <!-- Injected programmatically by core runtime logic compilation below -->
       </div>
     </div>
   </section>
@@ -1359,7 +1278,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </article>
     `).join('');
 
-    // Native support context toggling for touch devices without disrupting desktop hover hooks
     const cards = dynamicContainer.querySelectorAll('.team-card');
     cards.forEach(card => {
       card.addEventListener('click', function(e) {
