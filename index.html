@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FiParSo — Fifth Paradigm Solutions</title>
+<meta name="description" content="Fifth Paradigm Solutions — Advancing the frontier of biotechnology and artificial intelligence through computational biology and translational research.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<style>
+  :root{
+    --void:#030509;
+    --deep:#060c1a;
+    --deep-2:#081120;
+    --cyan:#22e8ff;
+    --cyan-dim:#0d7f96;
+    --blue:#3d5afe;
+    --text:#eaf6ff;
+    --text-dim:#7f93ab;
+    --text-faint:#4a5a72;
+    --glass-bg:rgba(9,18,36,0.42);
+    --glass-border:rgba(34,232,255,0.16);
+    --radius:24px;
+    --transition-timing: cubic-bezier(0.25, 1, 0.5, 1);
+    --transition-duration: 350ms;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--void);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background:var(--cyan); color:#00131a; }
+
+  h1,h2,h3{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    letter-spacing:-0.02em;
+    line-height:1.05;
+  }
+
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--cyan);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:22px; height:1px;
+    background:linear-gradient(90deg, var(--cyan), transparent);
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+
+  /* ---------- canvas bg ---------- */
+  #dna-canvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    touch-action:pan-y;
+    cursor:grab;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 20%, rgba(61,90,254,0.16), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 50% 90%, rgba(34,232,255,0.08), transparent 60%),
+      var(--void);
+  }
+
+  /* ---------- glass utility ---------- */
+  .glass{
+    background:var(--glass-bg);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(18px) saturate(140%);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);
+    border-radius:var(--radius);
+  }
+
+  /* ---------- nav ---------- */
+  nav{
+    position:fixed;
+    top:0; left:0; right:0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:20px clamp(20px,5vw,64px);
+    background:rgba(3,5,9,0.55);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(120,200,255,0.08);
+  }
+  .logo{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:1.25rem;
+    font-weight:700;
+    letter-spacing:0.02em;
+  }
+  .logo span{ color:var(--cyan); }
+
+  .nav-links{
+    display:flex;
+    gap:40px;
+    font-size:0.88rem;
+    font-weight:500;
+    letter-spacing:0.02em;
+  }
+  .nav-links a{
+    color:var(--text-dim);
+    position:relative;
+    transition:color .3s ease;
+    padding:4px 0;
+  }
+  .nav-links a::after{
+    content:'';
+    position:absolute; left:0; bottom:-2px;
+    width:0; height:1px;
+    background:var(--cyan);
+    transition:width .3s ease;
+  }
+  .nav-links a:hover{ color:var(--text); }
+  .nav-links a:hover::after{ width:100%; }
+
+  .nav-toggle{
+    display:none;
+    width:22px; height:16px;
+    position:relative;
+    z-index:110;
+  }
+  .nav-toggle span{
+    position:absolute; left:0; width:100%; height:1.5px;
+    background:var(--text);
+    transition:all .3s ease;
+  }
+  .nav-toggle span:nth-child(1){ top:0; }
+  .nav-toggle span:nth-child(2){ top:7px; }
+  .nav-toggle span:nth-child(3){ top:14px; }
+  .nav-toggle.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2){ opacity:0; }
+  .nav-toggle.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    z-index:1;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:140px 24px 80px;
+  }
+
+  .hero-card{
+    max-width:840px;
+    padding:clamp(28px,5vw,56px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:22px;
+    opacity:0;
+    transform:translateY(26px);
+    animation:riseIn 1s cubic-bezier(.16,.9,.35,1) forwards;
+  }
+
+  .hero h1{
+    font-size:clamp(2.1rem, 5.2vw, 3.85rem);
+    color:var(--text);
+  }
+  .hero h1 em{
+    font-style:normal;
+    background:linear-gradient(120deg, var(--cyan), var(--blue) 70%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .hero p.sub{
+    font-size:clamp(1rem, 1.6vw, 1.18rem);
+    color:var(--text-dim);
+    max-width:600px;
+    line-height:1.6;
+    font-weight:400;
+  }
+
+  .cta-row{
+    display:flex;
+    gap:18px;
+    margin-top:8px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .btn{
+    padding:14px 30px;
+    border-radius:100px;
+    font-size:0.92rem;
+    font-weight:600;
+    letter-spacing:0.01em;
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .btn-primary{
+    background:linear-gradient(120deg, var(--cyan), var(--blue));
+    color:#00131a;
+    box-shadow:0 0 0 rgba(34,232,255,0);
+  }
+  .btn-primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 30px rgba(34,232,255,0.35);
+  }
+  .btn-ghost{
+    border:1px solid rgba(120,200,255,0.28);
+    color:var(--text);
+    background:rgba(255,255,255,0.02);
+  }
+  .btn-ghost:hover{
+    border-color:var(--cyan);
+    transform:translateY(-2px);
+    background:rgba(34,232,255,0.06);
+  }
+
+  .scroll-cue{
+    position:absolute;
+    bottom:34px; left:50%;
+    transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    opacity:0;
+    animation:fadeIn 1s ease 1.4s forwards;
+  }
+  .scroll-cue .line{
+    width:1px; height:34px;
+    background:linear-gradient(180deg, var(--cyan), transparent);
+    animation:scrollPulse 2s ease-in-out infinite;
+  }
+  .scroll-cue span{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.65rem;
+    letter-spacing:0.2em;
+    color:var(--text-faint);
+    text-transform:uppercase;
+  }
+
+  @keyframes riseIn{ to{ opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn{ to{ opacity:1; } }
+  @keyframes scrollPulse{ 0%,100%{ opacity:.3; } 50%{ opacity:1; } }
+
+  /* ---------- sections shared ---------- */
+  section{
+    position:relative;
+    z-index:1;
+    padding:130px 24px;
+  }
+  .section-inner{
+    max-width:1120px;
+    margin:0 auto;
+  }
+  .reveal{
+    opacity:0;
+    transform:translateY(32px);
+    transition:opacity .9s cubic-bezier(.16,.9,.35,1), transform .9s cubic-bezier(.16,.9,.35,1);
+  }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- about ---------- */
+  .about-grid{
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:64px;
+    align-items:start;
+  }
+  .about-grid h2{
+    font-size:clamp(1.8rem,3.4vw,2.6rem);
+    margin:14px 0 20px;
+  }
+  .about-grid p{
+    color:var(--text-dim);
+    line-height:1.75;
+    font-size:1.02rem;
+    max-width:520px;
+  }
+  .tags{
+    display:flex; flex-wrap:wrap; gap:10px;
+    margin-top:28px;
+  }
+  .tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.06em;
+    padding:8px 14px;
+    border:1px solid rgba(120,200,255,0.2);
+    border-radius:100px;
+    color:var(--cyan);
+    background:rgba(34,232,255,0.04);
+  }
+
+  .about-panel{
+    padding:36px 32px;
+    display:flex;
+    flex-direction:column;
+    gap:26px;
+  }
+  .stat-row{ display:flex; justify-content:space-between; align-items:baseline; }
+  .stat-row + .stat-row{ border-top:1px solid rgba(120,200,255,0.1); padding-top:22px; }
+  .stat-num{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:1.7rem;
+    font-weight:600;
+    color:var(--text);
+  }
+  .stat-label{
+    font-size:0.82rem;
+    color:var(--text-faint);
+    max-width:170px;
+    text-align:right;
+    line-height:1.4;
+  }
+
+  /* ---------- research ---------- */
+  .research-head{
+    text-align:center;
+    max-width:640px;
+    margin:0 auto 64px;
+  }
+  .research-head h2{
+    font-size:clamp(1.8rem,3.4vw,2.6rem);
+    margin:14px 0 16px;
+  }
+  .research-head p{
+    color:var(--text-dim);
+    line-height:1.7;
+  }
+
+  .pillars{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+  }
+  .pillar{
+    padding:34px 28px;
+    position:relative;
+    overflow:hidden;
+    transition:transform .35s ease, border-color .35s ease;
+  }
+  .pillar:hover{ transform:translateY(-6px); border-color:rgba(34,232,255,0.4); }
+  .pillar-letter{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:2.6rem;
+    font-weight:700;
+    color:transparent;
+    -webkit-text-stroke:1.4px rgba(34,232,255,0.55);
+    line-height:1;
+    margin-bottom:20px;
+  }
+  .pillar h3{
+    font-size:1.18rem;
+    margin-bottom:12px;
+    color:var(--text);
+  }
+  .pillar p{
+    font-size:0.92rem;
+    color:var(--text-dim);
+    line-height:1.65;
+  }
+  .sequence-note{
+    text-align:center;
+    margin-top:40px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.75rem;
+    letter-spacing:0.18em;
+    color:var(--text-faint);
+    text-transform:uppercase;
+  }
+
+  /* ---------- team ---------- */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+
+  .team-card {
+    position: relative;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+    will-change: transform, max-height, box-shadow;
+    transition: 
+      transform var(--transition-duration) var(--transition-timing),
+      border-color var(--transition-duration) var(--transition-timing),
+      box-shadow var(--transition-duration) var(--transition-timing);
+  }
+
+  .team-card {
+    max-height: 290px;
+  }
+
+  .team-card:hover {
+    transform: translateY(-5px);
+    max-height: 650px;
+    border-color: rgba(34, 232, 255, 0.45);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), 0 0 25px rgba(34, 232, 255, 0.1);
+  }
+
+  .profile-photo-container {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 24px;
+    border: 2px solid rgba(34, 232, 255, 0.2);
+    background: var(--deep-2);
+    flex-shrink: 0;
+    will-change: transform;
+    transition: transform var(--transition-duration) var(--transition-timing), border-color var(--transition-duration) var(--transition-timing);
+  }
+
+  .profile-photo-container img, .profile-photo-container .initials {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .profile-photo-container .initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    color: #fff;
+  }
+
+  .team-card:hover .profile-photo-container {
+    transform: translateY(-6px) scale(1.03);
+    border-color: var(--cyan);
+  }
+
+  .member-identity h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .member-specialization {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--cyan);
+    text-transform: uppercase;
+  }
+
+  .expansion-drawer-content {
+    width: 100%;
+    opacity: 0;
+    transform: translateY(15px);
+    margin-top: 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    will-change: transform, opacity;
+    transition: 
+      opacity var(--transition-duration) var(--transition-timing),
+      transform var(--transition-duration) var(--transition-timing),
+      margin-top var(--transition-duration) var(--transition-timing);
+  }
+
+  .team-card:hover .expansion-drawer-content {
+    opacity: 1;
+    transform: translateY(0);
+    margin-top: 24px;
+  }
+
+  .member-biography-snippet {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .skills-segment {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .skills-segment h5 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .skill-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    background: rgba(120, 200, 255, 0.06);
+    border: 1px solid rgba(120, 200, 255, 0.14);
+    border-radius: 100px;
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+
+  .drawer-footer-row {
+    width: 100%;
+    padding-top: 16px;
+    border-top: 1px solid rgba(120, 200, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .member-email-anchor {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.74rem;
+    color: var(--text-faint);
+    transition: color 0.25s ease;
+  }
+
+  .member-email-anchor:hover {
+    color: var(--cyan);
+  }
+
+  .team-socials {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .team-socials a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid rgba(120, 200, 255, 0.2);
+    color: var(--text-dim);
+    transition: all 0.25s ease;
+  }
+
+  .team-socials a:hover {
+    color: var(--cyan);
+    border-color: var(--cyan);
+    background: rgba(34, 232, 255, 0.06);
+  }
+
+  .team-socials svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  @media(max-width: 980px){
+    .team-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  }
+  @media(max-width: 640px){
+    .team-grid { grid-template-columns: 1fr; gap: 24px; }
+    .team-card { max-height: none !important; }
+    .expansion-drawer-content { opacity: 1 !important; transform: none !important; margin-top: 24px !important; }
+  }
+
+  /* ---------- contact ---------- */
+  .contact-wrap{
+    display:grid;
+    grid-template-columns:0.85fr 1.15fr;
+    gap:56px;
+  }
+  .contact-info h2{
+    font-size:clamp(1.8rem,3.4vw,2.6rem);
+    margin:14px 0 18px;
+  }
+  .contact-info p{
+    color:var(--text-dim);
+    line-height:1.7;
+    max-width:400px;
+    margin-bottom:28px;
+  }
+  .contact-line{
+    display:flex; flex-direction:column; gap:4px;
+    margin-bottom:20px;
+  }
+  .contact-line .k{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem;
+    letter-spacing:0.16em;
+    color:var(--text-faint);
+    text-transform:uppercase;
+  }
+  .contact-line .v{ font-size:0.98rem; color:var(--text); }
+
+  .contact-form{
+    padding:36px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .field{ display:flex; flex-direction:column; gap:8px; }
+  .field label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem;
+    letter-spacing:0.14em;
+    color:var(--text-faint);
+    text-transform:uppercase;
+  }
+  .field input, .field textarea{
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(120, 200, 255, 0.16);
+    border-radius:10px;
+    padding:13px 16px;
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:0.95rem;
+    transition:border-color .25s ease, background .25s ease;
+  }
+  .field input:focus, .field textarea:focus{
+    outline:none;
+    border-color:var(--cyan);
+    background:rgba(34,232,255,0.04);
+  }
+  .field textarea{ resize:vertical; min-height:110px; }
+
+  .form-msg{
+    font-size:0.85rem;
+    color:var(--cyan);
+    font-family:'JetBrains Mono',monospace;
+    min-height:1.2em;
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    position:relative; z-index:1;
+    padding:40px 24px;
+    border-top:1px solid rgba(120,200,255,0.08);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+    max-width:1120px;
+    margin:0 auto;
+  }
+  footer .logo{ font-size:1rem; }
+  footer p{
+    font-size:0.8rem;
+    color:var(--text-faint);
+  }
+</style>
+</head>
+<body>
+
+<canvas id="dna-canvas"></canvas>
+
+<nav>
+  <div class="logo">FiPar<span>So</span></div>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-links" id="navLinks">
+    <a href="#home" class="nav-link">Home</a>
+    <a href="#about" class="nav-link">About</a>
+    <a href="#research" class="nav-link">Research</a>
+    <a href="#team" class="nav-link">Team</a>
+    <a href="#contact" class="nav-link">Contact</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="hero" id="home">
+    <div class="hero-card glass">
+      <div class="eyebrow">Computational Biology Research Group</div>
+      <h1>Integrating Artificial Intelligence and <em>Biotechnology Systems.</em></h1>
+      <p class="sub">Advancing translational research at the intersection of bioinformatics, computational chemistry, and artificial intelligence to drive healthcare innovation.</p>
+      <div class="cta-row">
+        <a href="#research" class="btn btn-primary">Research Pillars</a>
+        <a href="#contact" class="btn btn-ghost">Collaborate</a>
+      </div>
+    </div>
+    <div class="scroll-cue">
+      <span>Explore Research</span>
+      <div class="line"></div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="section-inner about-grid">
+      <div class="reveal">
+        <div class="eyebrow">About FiParSo</div>
+        <h2>Accelerating discovery through interdisciplinary collaboration.</h2>
+        <p>FiParSo is an applied research initiative dedicated to bridging the gap between molecular biology and computational intelligence. We develop machine learning frameworks designed specifically to decode complex biological datasets, optimizing scientific discovery pipelines from genome to model architecture.</p>
+        <p>Our methodology emphasizes rigorous data analysis, validating computational hypotheses through close alignment with experimental research paradigms to establish scalable frameworks for translational medicine.</p>
+        <div class="tags">
+          <span class="tag">BIOINFORMATICS</span>
+          <span class="tag">ARTIFICIAL INTELLIGENCE</span>
+          <span class="tag">COMPUTATIONAL CHEMISTRY</span>
+          <span class="tag">TRANSLATIONAL RESEARCH</span>
+        </div>
+      </div>
+      <div class="about-panel glass reveal">
+        <div class="stat-row">
+          <div class="stat-num">01</div>
+          <div class="stat-label">Core thesis: Unifying molecular signatures and deep learning primitives.</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-num">Continual</div>
+          <div class="stat-label">Validation loops spanning wet-lab benchmarks and specialized models.</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-num">5th</div>
+          <div class="stat-label">The paradigm of scientific discovery: Data-driven biological automation.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="research">
+    <div class="section-inner">
+      <div class="research-head reveal">
+        <div class="eyebrow" style="justify-content:center;">Research Focus</div>
+        <h2>Computational Frameworks & Core Pillars</h2>
+        <p>Investigating advanced methodologies to interpret biological logic, accelerate discovery pipelines, and deliver healthcare innovation.</p>
+      </div>
+      <div class="pillars">
+        <div class="pillar glass reveal">
+          <div class="pillar-letter">A</div>
+          <h3>Genomic Intelligence</h3>
+          <p>Developing deep learning architectures native to sequence patterns, prioritizing absolute precision in reading sequence variations over generalized computational text patterns.</p>
+        </div>
+        <div class="pillar glass reveal">
+          <div class="pillar-letter">T</div>
+          <h3>Predictive Diagnostics</h3>
+          <p>Isolating low-frequency biological signals from heterogeneous clinical datasets to establish models for early disease detection and personalized precision medicine.</p>
+        </div>
+        <div class="pillar glass reveal">
+          <div class="pillar-letter">G</div>
+          <h3>Autonomous Lab Systems</h3>
+          <p>Designing software frameworks for automated hypothesis generation and experiment execution, tightening iterative feedback intervals in exploratory biotechnology.</p>
+        </div>
+      </div>
+      <div class="sequence-note reveal">Translating algorithmic paradigms into physical validation models</div>
+    </div>
+  </section>
+
+  <section id="team">
+    <div class="section-inner">
+      <div class="research-head reveal">
+        <div class="eyebrow" style="justify-content:center;">Research Lab</div>
+        <h2>Scientific Investigators</h2>
+        <p>An interdisciplinary team of computational biologists, software engineers, and machine learning researchers mapping molecular datasets.</p>
+      </div>
+
+      <div class="team-grid" id="teamDynamicGrid">
+        <!-- Injected programmatically by the core script block below -->
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="section-inner contact-wrap">
+      <div class="contact-info reveal">
+        <div class="eyebrow">Academic Collaboration</div>
+        <h2>Initiate research partnerships.</h2>
+        <p>We welcome engagement from research institutes, clinical consortia, and biotechnology organizations to advance cross-disciplinary scientific projects.</p>
+        <div class="contact-line">
+          <span class="k">Research Office Email</span>
+          <span class="v">hello@fiparso.com</span>
+        </div>
+        <div class="contact-line">
+          <span class="k">Primary Specialization</span>
+          <span class="v">Bioinformatics × Machine Learning Infrastructure</span>
+        </div>
+      </div>
+      <form class="contact-form glass reveal" id="contactForm">
+        <div class="field">
+          <label for="name">Investigator / Institution Name</label>
+          <input type="text" id="name" name="name" placeholder="Dr. Jane Doe / University" required>
+        </div>
+        <div class="field">
+          <label for="email">Institutional Email</label>
+          <input type="email" id="email" name="email" placeholder="j.doe@institution.edu" required>
+        </div>
+        <div class="field">
+          <label for="message">Proposed Research Focus or Project Scope</label>
+          <textarea id="message" name="message" placeholder="Outline the dimensions of your collaborative project proposal..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="justify-content:center;">Submit Proposal</button>
+        <div class="form-msg" id="formMsg"></div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="logo">FiPar<span style="color:var(--cyan);">So</span></div>
+  <p>© 2026 Fifth Paradigm Solutions. Dedicated to advancing scientific research and public healthcare innovation through open computational biology collaboration.</p>
+</footer>
+
+<script type="module">
+import * as THREE from 'three';
+
+const canvas = document.getElementById('dna-canvas');
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isMobile = window.innerWidth < 760;
+const lowPower = isMobile || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+
+// ---------------------------------------------------------------------
+// Scene / camera / renderer
+// ---------------------------------------------------------------------
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 60);
+camera.position.set(0, 0, isMobile ? 14.5 : 11.5);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: !lowPower,
+  alpha: true,
+  powerPreference: 'high-performance'
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, lowPower ? 1.25 : 1.75));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+// ---------------------------------------------------------------------
+// Lights
+// ---------------------------------------------------------------------
+scene.add(new THREE.HemisphereLight(0x1c3a52, 0x02040a, 0.65));
+
+const keyLight = new THREE.PointLight(0x22e8ff, 4.5, 26, 2);
+keyLight.position.set(4, 2.5, 5);
+scene.add(keyLight);
+
+const rimLight = new THREE.PointLight(0x3d5afe, 2.6, 26, 2);
+rimLight.position.set(-5, -2.5, -4);
+scene.add(rimLight);
+
+// ---------------------------------------------------------------------
+// DNA Geometry Instantiation
+// ---------------------------------------------------------------------
+const helixGroup = new THREE.Group();
+helixGroup.rotation.z = 0.26;
+scene.add(helixGroup);
+
+const HEIGHT = 12.5;
+const RADIUS = 2;
+const TURNS = 3;
+const SEGMENTS = isMobile ? 56 : 90;
+const RUNG_STEP = isMobile ? 5 : 4;
+const rungCount = Math.floor(SEGMENTS / RUNG_STEP);
+
+const cyan = 0x22e8ff;
+const blue = 0x3d5afe;
+
+const backboneGeo = new THREE.SphereGeometry(0.085, 8, 8);
+const backboneMatA = new THREE.MeshStandardMaterial({ color: cyan, emissive: cyan, emissiveIntensity: 0.55, roughness: 0.35, metalness: 0.1 });
+const backboneMatB = new THREE.MeshStandardMaterial({ color: blue, emissive: blue, emissiveIntensity: 0.5, roughness: 0.35, metalness: 0.1 });
+const strandA = new THREE.InstancedMesh(backboneGeo, backboneMatA, SEGMENTS);
+const strandB = new THREE.InstancedMesh(backboneGeo, backboneMatB, SEGMENTS);
+helixGroup.add(strandA, strandB);
+
+const rungGeo = new THREE.CylinderGeometry(0.026, 0.026, 1, 6);
+const rungMat = new THREE.MeshStandardMaterial({ color: 0x8fd8ff, emissive: 0x2fb8d8, emissiveIntensity: 0.4, roughness: 0.4, transparent: true, opacity: 0.7 });
+const rungs = new THREE.InstancedMesh(rungGeo, rungMat, rungCount);
+helixGroup.add(rungs);
+
+const baseGeo = new THREE.SphereGeometry(0.06, 7, 7);
+const baseMat1 = new THREE.MeshStandardMaterial({ color: cyan, emissive: cyan, emissiveIntensity: 0.75, roughness: 0.3 });
+const baseMat2 = new THREE.MeshStandardMaterial({ color: blue, emissive: blue, emissiveIntensity: 0.7, roughness: 0.3 });
+const bases1 = new THREE.InstancedMesh(baseGeo, baseMat1, rungCount);
+const bases2 = new THREE.InstancedMesh(baseGeo, baseMat2, rungCount);
+helixGroup.add(bases1, bases2);
+
+const dummy = new THREE.Object3D();
+const posA = [], posB = [];
+
+for (let i = 0; i < SEGMENTS; i++) {
+  const t = i / SEGMENTS;
+  const y = HEIGHT * (t - 0.5);
+  const theta = t * Math.PI * 2 * TURNS;
+
+  const xA = Math.cos(theta) * RADIUS, zA = Math.sin(theta) * RADIUS;
+  const xB = Math.cos(theta + Math.PI) * RADIUS, zB = Math.sin(theta + Math.PI) * RADIUS;
+  posA.push(new THREE.Vector3(xA, y, zA));
+  posB.push(new THREE.Vector3(xB, y, zB));
+
+  dummy.position.set(xA, y, zA); dummy.updateMatrix();
+  strandA.setMatrixAt(i, dummy.matrix);
+  dummy.position.set(xB, y, zB); dummy.updateMatrix();
+  strandB.setMatrixAt(i, dummy.matrix);
+}
+strandA.instanceMatrix.needsUpdate = true;
+strandB.instanceMatrix.needsUpdate = true;
+
+let rIdx = 0;
+for (let i = 0; i < SEGMENTS && rIdx < rungCount; i += RUNG_STEP) {
+  const a = posA[i], b = posB[i];
+  const mid = new THREE.Vector3().addVectors(a, b).multiplyScalar(0.5);
+  const dir = new THREE.Vector3().subVectors(b, a);
+  const len = dir.length();
+
+  dummy.position.copy(mid);
+  dummy.scale.set(1, len, 1);
+  dummy.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+  dummy.updateMatrix();
+  rungs.setMatrixAt(rIdx, dummy.matrix);
+
+  dummy.scale.set(1, 1, 1);
+  dummy.position.copy(a); dummy.updateMatrix();
+  bases1.setMatrixAt(rIdx, dummy.matrix);
+  dummy.position.copy(b); dummy.updateMatrix();
+  bases2.setMatrixAt(rIdx, dummy.matrix);
+
+  rIdx++;
+}
+rungs.instanceMatrix.needsUpdate = true;
+bases1.instanceMatrix.needsUpdate = true;
+bases2.instanceMatrix.needsUpdate = true;
+
+function makeGlowTexture() {
+  const size = 256;
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  g.addColorStop(0, 'rgba(120,230,255,0.55)');
+  g.addColorStop(0.5, 'rgba(60,150,255,0.18)');
+  g.addColorStop(1, 'rgba(20,60,120,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  return new THREE.CanvasTexture(c);
+}
+const glowSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: makeGlowTexture(),
+  transparent: true,
+  opacity: 0.5,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending
+}));
+glowSprite.scale.set(9, 9, 1);
+helixGroup.add(glowSprite);
+
+const PARTICLE_COUNT = isMobile ? 22 : 40;
+const particleGeo = new THREE.BufferGeometry();
+const particlePos = new Float32Array(PARTICLE_COUNT * 3);
+const particleSpeed = new Float32Array(PARTICLE_COUNT);
+
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+  particlePos[i * 3] = (Math.random() - 0.5) * 20;
+  particlePos[i * 3 + 1] = (Math.random() - 0.5) * 18;
+  particlePos[i * 3 + 2] = (Math.random() - 0.5) * 12;
+  particleSpeed[i] = 0.08 + Math.random() * 0.14;
+}
+particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+
+const particleMat = new THREE.PointsMaterial({
+  color: 0x6fd4ff,
+  size: 0.05,
+  transparent: true,
+  opacity: 0.4,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false
+});
+const particles = new THREE.Points(particleGeo, particleMat);
+scene.add(particles);
+
+window.addEventListener('resize', onResize);
+function onResize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+
+const clock = new THREE.Clock();
+let rafId = null;
+const ROTATE_SPEED = 0.05;
+const FLOAT_SPEED = 0.35;
+const FLOAT_AMOUNT = 0.35;
+
+let isDragging = false, lastPointerX = 0, lastPointerTime = 0, dragVelocity = 0;
+
+canvas.addEventListener('pointerdown', (e) => {
+  isDragging = true; lastPointerX = e.clientX; lastPointerTime = performance.now(); dragVelocity = 0;
+  canvas.style.cursor = 'grabbing'; canvas.setPointerCapture?.(e.pointerId);
+});
+window.addEventListener('pointermove', (e) => {
+  if (!isDragging) return;
+  const now = performance.now(), dtMs = Math.max(now - lastPointerTime, 1), dx = e.clientX - lastPointerX;
+  lastPointerX = e.clientX; lastPointerTime = now;
+  const delta = dx * 0.0045; helixGroup.rotation.y += delta;
+  dragVelocity = delta / (dtMs / 1000);
+});
+window.addEventListener('pointerup', () => { isDragging = false; canvas.style.cursor = 'grab'; });
+
+function renderFrame() {
+  rafId = requestAnimationFrame(renderFrame);
+  const dt = Math.min(clock.getDelta(), 0.05), elapsed = clock.getElapsedTime();
+
+  if (!reducedMotion) {
+    helixGroup.rotation.y += dt * ROTATE_SPEED;
+    if (!isDragging && Math.abs(dragVelocity) > 0.01) { helixGroup.rotation.y += dragVelocity * dt; dragVelocity *= 0.92; }
+    helixGroup.position.y = Math.sin(elapsed * FLOAT_SPEED) * FLOAT_AMOUNT;
+    const posAttr = particleGeo.attributes.position;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      let y = posAttr.array[i * 3 + 1]; y += particleSpeed[i] * dt;
+      if (y > 9) y = -9; posAttr.array[i * 3 + 1] = y;
+    }
+    posAttr.needsUpdate = true;
+  }
+  renderer.render(scene, camera);
+}
+
+startLoop();
+function startLoop() { if (rafId === null) { clock.start(); rafId = requestAnimationFrame(renderFrame); } }
+function stopLoop() { if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; } }
+document.addEventListener('visibilitychange', () => { document.hidden ? stopLoop() : startLoop(); });
+
+// ---------------------------------------------------------------------
+// Academic Team Registry Pool (Improved Wording Integration)
+// ---------------------------------------------------------------------
+const teamScholarsRegistry = [
+  {
+    name: "Prof. G. Narahari Sastry",
+    specialty: "Principal Investigator & Faculty Mentor",
+    bio: "Focuses on computational drug discovery, algorithmic molecular modeling, and interdisciplinary machine learning systems applied to chemical biology datasets.",
+    image: "https://fifth-paradigm-solutions.web.app/team/Professor.jpg",
+    email: "gnsastry@iith.ac.in",
+    tags: ["Computational Chemistry", "Drug Discovery", "Molecular Modeling"]
+  },
+  {
+    name: "Pratiksha",
+    specialty: "Medical Biotechnology Researcher",
+    bio: "Specializes in clinical informatics and predictive biological modeling. Focus areas involve applying data-driven pipelines to optimize wet-lab workflows.",
+    image: "https://fifth-paradigm-solutions.web.app/team/Pratiksha.jpg",
+    email: "bt24mtech11004@iith.ac.in",
+    tags: ["Medical Biotechnology", "Bioinformatics", "Predictive Analytics"]
+  },
+  {
+    name: "Kalyani",
+    specialty: "Computational Biology Investigator",
+    bio: "Investigates chemical compound screening matrices, analyzing drug safety profiles and toxicological thresholds via deep algorithmic structural assessments.",
+    image: "https://fifth-paradigm-solutions.web.app/team/Kalyani.jpg",
+    email: "bt24mtech11011@iith.ac.in",
+    tags: ["Bioinformatics", "Drug Safety", "Computational Biology"]
+  },
+  {
+    name: "Prakash",
+    specialty: "Scientific Software Engineer",
+    bio: "Develops high-throughput biological ingestion architectures and machine learning optimization models to accelerate massive sequence parsing scripts.",
+    image: "https://fifth-paradigm-solutions.web.app/team/Prakash.jpg",
+    email: "bt23btech11010@iith.ac.in",
+    tags: ["Machine Learning Infrastructure", "Software Engineering", "AI Systems"]
+  },
+  {
+    name: "Divyam",
+    specialty: "Computational Modeling Specialist",
+    bio: "Researches mathematical optimization engines and stochastic signal estimation structures to evaluate cellular stress response curves precisely.",
+    image: "https://fifth-paradigm-solutions.web.app/team/Divyam.jpg",
+    email: "bt23btech11007@iith.ac.in",
+    tags: ["Computational Modeling", "Data Science", "Diagnostics Systems"]
+  },
+  {
+    name: "Sambita",
+    specialty: "Biotechnology Research Fellow",
+    bio: "Maintains data pipeline verification loops between digital models and real-world laboratory criteria, analyzing functional validation benchmarks.",
+    image: "https://fifth-paradigm-solutions.web.app/team/Sambita.jpg",
+    email: "bt25mtech14011@iith.ac.in",
+    tags: ["Translational Research", "Experimental Design", "Validation Loops"]
+  }
+];
+
+function fallbackInitials(name) {
+  return name.replace(/^Prof\.?\s*|^Dr\.?\s*/i, '').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const dynamicContainer = document.getElementById('teamDynamicGrid');
+  if (dynamicContainer) {
+    dynamicContainer.innerHTML = teamScholarsRegistry.map(member => `
+      <article class="team-card glass reveal">
+        <div class="profile-photo-container">
+          <img src="${member.image}" alt="${member.name}" loading="lazy" 
+               onerror="this.onerror=null; this.replaceWith(Object.assign(document.createElement('div'),{className:'initials',textContent:'${fallbackInitials(member.name)}'}));">
+        </div>
+        <div class="member-identity">
+          <h3>${member.name}</h3>
+          <div class="member-specialization">${member.specialty}</div>
+        </div>
+        
+        <div class="expansion-drawer-content">
+          <p class="member-biography-snippet">${member.bio}</p>
+          
+          <div class="skills-segment">
+            <h5>Research Focus</h5>
+            <div class="skill-tags">
+              ${member.tags.map(t => `<span class="skill-tag">${t}</span>`).join('')}
+            </div>
+          </div>
+          
+          <div class="drawer-footer-row">
+            <a href="mailto:${member.email}" class="member-email-anchor">${member.email}</a>
+            <div class="team-socials">
+              <a href="#" aria-label="LinkedIn Investigator Profile"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
+              <a href="#" aria-label="Google Scholar Publication Record"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 1 9l4 2.18v6L12 21l7-3.82v-6L21 9 12 3zm0 2.31L17.82 9 12 12.19 6.18 9 12 5.31zM7 12.36l4.25 2.32a1 1 0 0 0 .96 0L16.46 12.36 17 12.66v4.4L12 19.6l-5-2.54v-4.4l.03-.01z"/></svg></a>
+            </div>
+          </div>
+        </div>
+      </article>
+    `).join('');
+  }
+
+  const elements = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('in'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  elements.forEach(el => observer.observe(el));
+});
+
+const navToggle = document.getElementById('navToggle'), navLinks = document.getElementById('navLinks');
+navToggle.addEventListener('click', () => { navToggle.classList.toggle('open'); navLinks.classList.toggle('open'); });
+document.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => { navToggle.classList.remove('open'); navLinks.classList.remove('open'); }));
+
+const form = document.getElementById('contactForm'), msg = document.getElementById('formMsg');
+form.addEventListener('submit', (e) => { e.preventDefault(); msg.textContent = 'Collaboration proposal successfully received.'; form.reset(); });
+</script>
+
+</body>
+</html>
