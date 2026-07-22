@@ -185,6 +185,17 @@
   }
   .logo span{ color:var(--cyan); }
 
+  .logo-block{ display:flex; flex-direction:column; gap:2px; z-index:120; }
+  .logo-tagline{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.6rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    white-space:nowrap;
+  }
+  @media (max-width: 480px){ .logo-tagline{ display:none; } }
+
   .nav-links{
     display:flex;
     gap:clamp(20px, 3vw, 40px);
@@ -193,21 +204,24 @@
     letter-spacing:0.02em;
     align-items: center;
   }
-  .nav-links a{
+  .nav-links a, .nav-links .nav-link-popup{
     color:var(--text-dim);
     position:relative;
     transition:color .3s ease;
     padding:4px 0;
+    font-size:inherit;
+    font-weight:inherit;
+    letter-spacing:inherit;
   }
-  .nav-links a::after{
+  .nav-links a::after, .nav-links .nav-link-popup::after{
     content:'';
     position:absolute; left:0; bottom:-2px;
     width:0; height:1px;
     background:var(--cyan);
     transition:width .3s ease;
   }
-  .nav-links a:hover{ color:var(--text); }
-  .nav-links a:hover::after{ width:100%; }
+  .nav-links a:hover, .nav-links .nav-link-popup:hover{ color:var(--text); }
+  .nav-links a:hover::after, .nav-links .nav-link-popup:hover::after{ width:100%; }
   .nav-links a.active{ color:var(--text); }
   .nav-links a.active::after{ width:100%; }
 
@@ -649,6 +663,42 @@
     letter-spacing:0.18em;
     color:var(--text-faint);
     text-transform:uppercase;
+  }
+
+  /* ---------- partner logo marquee ---------- */
+  .marquee-frame{
+    overflow:hidden;
+    padding: clamp(28px, 4vw, 40px) 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .marquee-track{
+    display:flex;
+    width:max-content;
+    animation: marqueeScroll 32s linear infinite;
+    will-change: transform;
+  }
+  .marquee-frame:hover .marquee-track{ animation-play-state: paused; }
+  .marquee-set{
+    display:flex;
+    align-items:center;
+    gap: clamp(40px, 6vw, 72px);
+    padding-right: clamp(40px, 6vw, 72px);
+  }
+  .marquee-logo{
+    font-family:'Space Grotesk',sans-serif;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    font-weight:600;
+    letter-spacing:0.02em;
+    color:var(--text-faint);
+    white-space:nowrap;
+    opacity:0.7;
+    transition:opacity .3s ease, color .3s ease;
+  }
+  .marquee-logo:hover{ opacity:1; color:var(--cyan); }
+  @keyframes marqueeScroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce){
+    .marquee-track{ animation:none; }
   }
 
   /* ---------- fifth paradigm labs ---------- */
@@ -1129,15 +1179,20 @@
 
 <nav>
   <div class="nav-container">
-    <div class="logo">FiPAR<span>So</span></div>
+    <div class="logo-block">
+      <div class="logo">FiPAR<span>So</span></div>
+      <div class="logo-tagline">Fifth Paradigm Solutions</div>
+    </div>
     <div class="nav-extra">
       <div class="nav-links" id="navLinks">
         <a href="#home" class="nav-link">Home</a>
-        <a href="#about" class="nav-link">About</a>
         <a href="#labs" class="nav-link">Lab</a>
         <a href="#collaboration" class="nav-link">Partnerships</a>
         <a href="#team" class="nav-link">Team</a>
         <a href="#contact" class="nav-link">Contact</a>
+        <button type="button" class="nav-link-popup" data-node="courses">Courses</button>
+        <button type="button" class="nav-link-popup" data-node="industry">Industry Solutions</button>
+        <button type="button" class="nav-link-popup" data-node="projects">Our Projects</button>
       </div>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle light and dark theme">
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1233,7 +1288,7 @@
         <div class="eyebrow" style="justify-content:center;">Fifth Paradigm Lab</div>
         <h2>FIFTH PARADIGM LAB</h2>
         <p>Fifth Paradigm Lab is where FiPARSo develops the researchers, ideas, and methods behind its work. It exists to grow scientific thinking and genuine interdisciplinary collaboration — bringing biology, computation, and clinical insight together so that early hypotheses can mature into applied, real-world innovation. The Lab is deliberately open by design: every framework built here is meant to be tested, shared, and carried forward alongside academic and industry partners, not developed in isolation.</p>
-        <a href="#" class="btn btn-primary reveal" style="margin-top: clamp(28px, 4vw, 36px);">Explore the Lab</a>
+        <a href="https://sites.google.com/view/gns-fifthparadigmlab/" target="_blank" rel="noopener" class="btn btn-primary reveal" style="margin-top: clamp(28px, 4vw, 36px);">Explore the Lab</a>
       </div>
     </div>
   </section>
@@ -1245,31 +1300,24 @@
         <h2>Trusted Partners</h2>
         <p>FiPARSo collaborates with a broad network of organizations to move computational biology from open questions to applied outcomes — building relationships grounded in scientific rigor, not commercial convenience.</p>
       </div>
-      <div class="pillars">
-        <div class="pillar glass reveal">
-          <div class="pillar-letter">S</div>
-          <h3>Startups</h3>
-          <p>Working with early-stage ventures to bring computational rigor to emerging biotechnology products.</p>
-        </div>
-        <div class="pillar glass reveal">
-          <div class="pillar-letter">H</div>
-          <h3>Healthcare Organizations</h3>
-          <p>Applying machine learning to diagnostics, biomarker discovery, and personalized treatment modeling.</p>
-        </div>
-        <div class="pillar glass reveal">
-          <div class="pillar-letter">R</div>
-          <h3>Research Institutes</h3>
-          <p>Pursuing interdisciplinary questions at the intersection of biology and computation alongside fellow research groups.</p>
-        </div>
-        <div class="pillar glass reveal">
-          <div class="pillar-letter">I</div>
-          <h3>Industry Leaders</h3>
-          <p>Translating academic frameworks into production-grade tools for established biotechnology and pharmaceutical partners.</p>
-        </div>
-        <div class="pillar glass reveal">
-          <div class="pillar-letter">U</div>
-          <h3>Universities</h3>
-          <p>Building academic partnerships that carry ideas from the lab bench into applied practice.</p>
+      <div class="marquee-frame glass reveal">
+        <div class="marquee-track" id="partnerMarquee">
+          <div class="marquee-set">
+            <span class="marquee-logo">Startups</span>
+            <span class="marquee-logo">Healthcare Organizations</span>
+            <span class="marquee-logo">Research Institutes</span>
+            <span class="marquee-logo">Industry Leaders</span>
+            <span class="marquee-logo">Universities</span>
+            <span class="marquee-logo">IIT Hyderabad</span>
+          </div>
+          <div class="marquee-set" aria-hidden="true">
+            <span class="marquee-logo">Startups</span>
+            <span class="marquee-logo">Healthcare Organizations</span>
+            <span class="marquee-logo">Research Institutes</span>
+            <span class="marquee-logo">Industry Leaders</span>
+            <span class="marquee-logo">Universities</span>
+            <span class="marquee-logo">IIT Hyderabad</span>
+          </div>
         </div>
       </div>
       <div class="sequence-note reveal">Advancing science through open, interdisciplinary partnership</div>
@@ -1279,7 +1327,7 @@
   <section id="team">
     <div class="section-inner">
       <div class="research-head reveal">
-        <div class="eyebrow" style="justify-content:center;">Fifth Paradigm Lab</div>
+        <div class="eyebrow" style="justify-content:center;">The People Behind FiPARSo</div>
         <h2>Our Team</h2>
         <p>An interdisciplinary group of mentors, executives, and researchers mapping molecular datasets and shaping FiPARSo's direction.</p>
       </div>
@@ -1343,8 +1391,8 @@
   </div>
   <div class="footer-right">
     <div class="footer-socials">
-      <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
-      <a href="#" aria-label="Twitter / X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-7l-5.5-7.2L4.5 22H1.4l8.1-9.3L1 2h7.2l5 6.6L18.9 2zm-1.2 18h1.7L7.4 4H5.6l12.1 16z"/></svg></a>
+      <a href="https://www.linkedin.com/company/fifth-paradigm-solutions/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
+      <a href="https://www.instagram.com/fiparso/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg></a>
       <a href="mailto:fifthparadigmsolutions.office@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></a>
     </div>
     <p class="footer-copy">© 2026 Fifth Paradigm Solutions (FiPARSo). All rights reserved.</p>
@@ -1858,7 +1906,7 @@ function renderMemberCard(member) {
           <div class="drawer-footer-row">
             <a href="mailto:${member.email}" class="member-email-anchor">${member.email}</a>
             <div class="team-socials">
-              <a href="${member.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn Profile"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
+              ${member.linkedin && member.linkedin !== '#' ? `<a href="${member.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn Profile"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>` : ''}
             </div>
           </div>
         </div>
@@ -1967,6 +2015,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openNode(node.dataset.node); }
     });
   });
+  document.querySelectorAll('.nav-link-popup').forEach(node => {
+    node.addEventListener('click', () => openNode(node.dataset.node));
+  });
   closeBtn && closeBtn.addEventListener('click', closeNode);
   overlay && overlay.addEventListener('click', (e) => { if (e.target === overlay) closeNode(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeNode(); });
@@ -1989,7 +2040,7 @@ navToggle.addEventListener('click', () => {
   navLinks.classList.toggle('open');
   navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
 });
-document.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => {
+document.querySelectorAll('.nav-link, .nav-link-popup').forEach(l => l.addEventListener('click', () => {
   navToggle.classList.remove('open');
   navLinks.classList.remove('open');
   navToggle.setAttribute('aria-expanded', 'false');
